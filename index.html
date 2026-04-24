@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Too Blessed Imports</title>
+
+<!-- FAVICON SVG inline como data URI -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='8' fill='%230a0a0a'/%3E%3Ctext x='50' y='38' font-family='serif' font-size='28' font-weight='900' fill='white' text-anchor='middle' letter-spacing='-1'%3ETB%3C/text%3E%3Ctext x='50' y='62' font-family='sans-serif' font-size='10' fill='%23666' text-anchor='middle' letter-spacing='3'%3EIMPORTS%3C/text%3E%3C/svg%3E"/>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0;}
+ 
+  .sr{font-family:'DM Sans',sans-serif;background:#0a0a0a;color:#e8e8e8;min-height:100vh;}
+ 
+  .hdr{background:#0a0a0a;border-bottom:1px solid #1e1e1e;padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:64px;position:sticky;top:0;z-index:100;}
+  .logo{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:5px;color:#fff;line-height:1;}
+  .logo span{color:#555;font-size:10px;letter-spacing:3px;display:block;font-family:'DM Sans',sans-serif;font-weight:300;text-transform:uppercase;margin-top:2px;}
+  .nav-links{display:flex;gap:2rem;list-style:none;}
+  .nav-links button{background:none;border:none;border-bottom:1px solid transparent;color:#666;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:color .2s,border-color .2s;padding:4px 0;}
+  .nav-links button:hover,.nav-links button.active{color:#fff;border-bottom-color:#fff;}
+  .hdr-right{display:flex;align-items:center;gap:14px;}
+  .icount{font-size:11px;color:#444;letter-spacing:1.5px;text-transform:uppercase;}
+  .licon{background:none;border:none;cursor:pointer;opacity:.18;transition:opacity .3s;padding:4px;display:flex;align-items:center;}
+  .licon:hover{opacity:.45;}
+  .licon svg{width:14px;height:14px;stroke:#888;fill:none;stroke-width:1.5;}
+
+  /* ===== HERO COM LOGO CENTRALIZADA ===== */
+
+
+
+  /* Container da imagem com logo sobreposta */
+  .hero-img-slot{
+    margin: 0 auto;
+    flex-shrink:0;
+     width:300px;
+  height:220px;
+    border-radius:3px;
+    overflow:hidden;
+    background:#111;
+    position:relative;
+  }
+  .hero-img-slot img.hero-bg{
+    position:absolute;inset:0;
+    width:100%;height:100%;
+    object-fit:contain;
+    background: #111;
+    opacity:0;
+    transition:opacity .45s ease;
+  }
+  .hero-img-slot img.hero-bg.active{opacity:1;}
+
+  /* Logo SVG centralizada sobre a imagem — fundo transparente */
+  .hero-logo-overlay{
+    position:absolute;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:2;
+    pointer-events:none;
+  }
+  
+
+  /* Lado direito: info de temporada */
+  .hero-right{text-align:right;display:flex;flex-direction:column;justify-content:flex-end;padding-bottom:4px;}
+  .hero-right p{font-size:11px;color:#444;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:6px;}
+  .hero-right strong{font-size:13px;color:#666;font-weight:300;letter-spacing:1px;}
+ 
+  .fbar{padding:1rem 2rem;display:flex;gap:6px;align-items:center;border-bottom:1px solid #141414;overflow-x:auto;}
+  .flabel{font-size:10px;letter-spacing:2.5px;color:#383838;text-transform:uppercase;margin-right:6px;white-space:nowrap;}
+  .fbtn{background:none;border:1px solid #222;color:#555;padding:5px 14px;font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:1.5px;cursor:pointer;border-radius:2px;transition:all .2s;text-transform:uppercase;white-space:nowrap;}
+  .fbtn:hover{border-color:#444;color:#999;}
+  .fbtn.active{background:#fff;border-color:#fff;color:#000;}
+
+  /* ===== GRID COM VÃO ENTRE CARDS ===== */
+  .pgrid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:12px;          /* vão entre os cards */
+    background:#0a0a0a;
+    padding:12px;      /* padding nas bordas também */
+  }
+
+  .pcard{background:#0f0f0f;cursor:pointer;transition:background .25s;border-radius:3px;overflow:hidden;border:1px solid #161616;}
+  .pcard:hover{background:#141414;border-color:#222;}
+  .pcard:hover .pimg-inner{transform:scale(1.04);}
+  .img-wrap{width:100%;aspect-ratio:3/4;overflow:hidden;background:#111;position:relative;}
+  .pimg-inner{width:100%;height:100%;display:flex;align-items:center;justify-content:center;transition:transform .55s cubic-bezier(.25,.46,.45,.94);overflow:hidden;}
+  .pimg-inner svg{opacity:.12;}
+  .pimg-inner img{width:100%;height:100%;object-fit:contain;display:block;}
+  .badge{position:absolute;top:14px;left:14px;font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;padding:4px 10px;border-radius:2px;}
+  .badge-novo{background:#fff;color:#000;}
+  .badge-destaque{background:#252525;color:#aaa;border:1px solid #333;}
+  .badge-sale{background:#c0392b;color:#fff;}
+  .disc-seal{position:absolute;top:14px;right:14px;background:#c0392b;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1px;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;}
+  .cinfo{padding:1rem 1.1rem 1.4rem;border-top:1px solid #161616;}
+  .ccat{font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:#383838;margin-bottom:7px;}
+  .cname{font-size:14px;font-weight:400;color:#bbb;margin-bottom:5px;line-height:1.35;}
+  .cdesc{font-size:11.5px;color:#484848;margin-bottom:10px;line-height:1.55;}
+  .csizes{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px;}
+  .szpill{font-size:9px;letter-spacing:1px;color:#555;border:1px solid #222;padding:2px 7px;border-radius:2px;}
+  .cfoot{display:flex;align-items:flex-end;justify-content:space-between;}
+  .old-price{font-size:11px;color:#555;text-decoration:line-through;letter-spacing:.5px;display:block;margin-bottom:1px;}
+  .cprice{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:1px;color:#e0e0e0;line-height:1;}
+  .cprice.sale-price{color:#e74c3c;}
+  .colors-row{display:flex;gap:5px;align-items:center;padding-bottom:2px;}
+  .cdot{width:10px;height:10px;border-radius:50%;border:1px solid #2a2a2a;flex-shrink:0;}
+ 
+  .sfooter{padding:2.5rem 2rem;border-top:1px solid #161616;display:flex;justify-content:space-between;align-items:center;}
+  .fbn{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:5px;color:#252525;}
+  .fbs{font-size:9px;letter-spacing:3px;color:#222;text-transform:uppercase;}
+  .ftxt{font-size:10px;color:#2a2a2a;letter-spacing:1.5px;text-transform:uppercase;}
+ 
+  .mbg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:999;align-items:center;justify-content:center;}
+  .mbg.open{display:flex;}
+ 
+  .lmod{background:#111;border:1px solid #222;padding:2.5rem 2rem;width:280px;border-radius:4px;}
+  .lmod h2{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:4px;color:#fff;margin-bottom:1.5rem;}
+  .lmod input{width:100%;background:#0a0a0a;border:1px solid #222;color:#ccc;font-family:'DM Sans',sans-serif;font-size:14px;padding:10px 12px;border-radius:2px;outline:none;letter-spacing:4px;}
+  .lmod input:focus{border-color:#444;}
+  .lerr{font-size:11px;color:#a44;letter-spacing:1px;margin-top:8px;display:none;}
+  .lact{display:flex;gap:8px;margin-top:16px;}
+  .btn-p{flex:1;background:#fff;color:#000;border:none;padding:10px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border-radius:2px;transition:background .2s;}
+  .btn-p:hover{background:#ddd;}
+  .btn-g{background:none;color:#555;border:1px solid #222;padding:10px 16px;font-family:'DM Sans',sans-serif;font-size:12px;letter-spacing:1px;text-transform:uppercase;cursor:pointer;border-radius:2px;transition:all .2s;}
+  .btn-g:hover{border-color:#444;color:#888;}
+ 
+  .dmod{background:#0f0f0f;border:1px solid #1e1e1e;border-radius:4px;width:92%;max-width:860px;max-height:90vh;overflow-y:auto;display:flex;flex-direction:column;}
+  .dmod-body{display:flex;gap:0;flex:1;}
+  .dmod-gallery{width:55%;background:#111;position:relative;flex-shrink:0;}
+  .dmod-main-img{width:100%;aspect-ratio:3/4;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#111;}
+  .dmod-main-img img{width:100%;height:100%;object-fit:contain;display:block;}
+  .dmod-main-img svg{opacity:.12;}
+  .dmod-thumbs{display:flex;gap:6px;padding:10px;background:#0f0f0f;flex-wrap:wrap;}
+  .dthumb{width:54px;height:68px;border-radius:2px;overflow:hidden;cursor:pointer;border:1px solid #222;flex-shrink:0;background:#111;display:flex;align-items:center;justify-content:center;transition:border-color .2s;}
+  .dthumb:hover,.dthumb.active{border-color:#666;}
+  .dthumb img{width:100%;height:100%;object-fit:contain;display:block;}
+  .dmod-info{flex:1;padding:2rem 1.8rem;display:flex;flex-direction:column;gap:14px;min-width:0;}
+  .dmod-close{position:absolute;top:14px;right:14px;background:rgba(0,0,0,.6);border:none;color:#888;cursor:pointer;font-size:18px;line-height:1;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:color .2s;z-index:10;}
+  .dmod-close:hover{color:#fff;}
+  .dmod-cat{font-size:10px;letter-spacing:2.5px;text-transform:uppercase;color:#444;}
+  .dmod-name{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:2px;color:#fff;line-height:1.05;}
+  .dmod-price-block{display:flex;align-items:baseline;gap:12px;}
+  .dmod-old{font-size:14px;color:#555;text-decoration:line-through;}
+  .dmod-price{font-family:'Bebas Neue',sans-serif;font-size:38px;letter-spacing:1px;color:#e0e0e0;line-height:1;}
+  .dmod-price.sp{color:#e74c3c;}
+  .dmod-seal{background:#c0392b;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:16px;padding:4px 10px;border-radius:2px;}
+  .dmod-section-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#444;margin-bottom:8px;}
+  .dmod-colors{display:flex;gap:8px;flex-wrap:wrap;}
+  .dmod-color{display:flex;align-items:center;gap:6px;padding:5px 10px;border:1px solid #222;border-radius:2px;cursor:default;font-size:11px;color:#666;letter-spacing:.5px;}
+  .dmod-color .dc{width:12px;height:12px;border-radius:50%;border:1px solid #333;flex-shrink:0;}
+  .dmod-sizes{display:flex;gap:6px;flex-wrap:wrap;}
+  .dsz{padding:6px 14px;border:1px solid #222;border-radius:2px;font-size:12px;color:#777;letter-spacing:1px;cursor:pointer;transition:all .2s;}
+  .dsz:hover{border-color:#555;color:#aaa;}
+  .dsz.active{border-color:#fff;color:#fff;}
+  .dmod-desc{font-size:13px;color:#555;line-height:1.65;}
+  .dmod-badge{display:inline-block;font-size:9px;font-weight:500;letter-spacing:2px;text-transform:uppercase;padding:4px 10px;border-radius:2px;}
+ 
+  .btn-whats{width:100%;background:#25D366;color:#fff;border:none;padding:14px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border-radius:2px;transition:background .2s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:4px;}
+  .btn-whats:hover{background:#1ebe5d;}
+ 
+  .amod{background:#0f0f0f;border:1px solid #1e1e1e;border-radius:4px;width:92%;max-width:840px;max-height:88vh;overflow-y:auto;padding:2rem;}
+  .ahdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;border-bottom:1px solid #1a1a1a;padding-bottom:1.2rem;}
+  .atitle{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:4px;color:#fff;}
+  .atitle span{font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:2px;color:#444;font-weight:300;display:block;margin-top:2px;}
+  .cbtn{background:none;border:none;color:#555;cursor:pointer;font-size:20px;line-height:1;transition:color .2s;}
+  .cbtn:hover{color:#fff;}
+  .aform{background:#111;border:1px solid #1a1a1a;border-radius:4px;padding:1.5rem;margin-bottom:2rem;}
+  .ftitle{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:#555;margin-bottom:1.2rem;}
+  .fgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .fg{display:flex;flex-direction:column;gap:6px;}
+  .fg.full{grid-column:1/-1;}
+  .fg label{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#444;}
+  .fg input,.fg select,.fg textarea{background:#0a0a0a;border:1px solid #1e1e1e;color:#ccc;font-family:'DM Sans',sans-serif;font-size:13px;padding:9px 12px;border-radius:2px;outline:none;}
+  .fg input:focus,.fg select:focus,.fg textarea:focus{border-color:#333;}
+  .fg select option{background:#111;}
+  .fg textarea{resize:vertical;min-height:70px;}
+ 
+  .photos-area{border:1px dashed #222;border-radius:2px;padding:1rem;cursor:pointer;position:relative;transition:border-color .2s;}
+  .photos-area:hover{border-color:#444;}
+  .photos-area input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+  .photos-hint{font-size:11px;color:#444;letter-spacing:1px;pointer-events:none;text-align:center;padding:.5rem 0;}
+  .photo-previews{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+  .pprev{width:64px;height:80px;border-radius:2px;overflow:hidden;border:1px solid #222;position:relative;flex-shrink:0;}
+  .pprev img{width:100%;height:100%;object-fit:contain;display:block;}
+  .pprev-rm{position:absolute;top:2px;right:2px;background:rgba(0,0,0,.7);border:none;color:#aaa;cursor:pointer;font-size:10px;width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;}
+ 
+  .color-input-row{display:flex;gap:8px;align-items:center;margin-bottom:6px;}
+  .color-input-row input[type=text]{flex:1;}
+  .color-swatch-preview{width:24px;height:24px;border-radius:50%;border:1px solid #333;flex-shrink:0;transition:background .2s;}
+  .color-add-btn{background:none;border:1px solid #333;color:#666;padding:6px 12px;font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:1px;cursor:pointer;border-radius:2px;transition:all .2s;white-space:nowrap;}
+  .color-add-btn:hover{border-color:#555;color:#999;}
+  .color-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;}
+  .ctag{display:flex;align-items:center;gap:6px;background:#1a1a1a;border:1px solid #222;border-radius:2px;padding:4px 10px;font-size:11px;color:#777;}
+  .ctag .csw{width:10px;height:10px;border-radius:50%;border:1px solid #333;flex-shrink:0;}
+  .ctag button{background:none;border:none;color:#444;cursor:pointer;font-size:12px;line-height:1;margin-left:2px;}
+  .ctag button:hover{color:#888;}
+ 
+  .size-input-row{display:flex;gap:8px;align-items:center;margin-bottom:6px;}
+  .size-input-row input{flex:1;}
+  .size-add-btn{background:none;border:1px solid #333;color:#666;padding:6px 12px;font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:1px;cursor:pointer;border-radius:2px;transition:all .2s;white-space:nowrap;}
+  .size-add-btn:hover{border-color:#555;color:#999;}
+  .size-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;}
+  .stag{display:flex;align-items:center;gap:4px;background:#1a1a1a;border:1px solid #222;border-radius:2px;padding:4px 10px;font-size:11px;color:#777;letter-spacing:1px;}
+  .stag button{background:none;border:none;color:#444;cursor:pointer;font-size:12px;line-height:1;margin-left:2px;}
+  .stag button:hover{color:#888;}
+ 
+  .fact{display:flex;gap:8px;margin-top:14px;}
+  .alist-title{font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:#555;margin-bottom:1rem;}
+  .alist{display:flex;flex-direction:column;gap:8px;}
+  .aitem{background:#111;border:1px solid #1a1a1a;border-radius:2px;display:flex;align-items:center;gap:12px;padding:10px 14px;transition:border-color .2s;}
+  .aitem:hover{border-color:#2a2a2a;}
+  .athumb{width:40px;height:52px;background:#0a0a0a;border-radius:2px;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+  .athumb img{width:100%;height:100%;object-fit:contain;}
+  .athumb svg{opacity:.2;}
+  .ainfo{flex:1;min-width:0;}
+  .ainame{font-size:13px;color:#aaa;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .aimeta{font-size:10px;color:#444;letter-spacing:1px;text-transform:uppercase;}
+  .aiprice{font-family:'Bebas Neue',sans-serif;font-size:18px;color:#666;letter-spacing:1px;flex-shrink:0;}
+  .delbtn{background:none;border:1px solid #1e1e1e;color:#444;padding:5px 10px;font-size:11px;letter-spacing:1px;cursor:pointer;border-radius:2px;transition:all .2s;flex-shrink:0;}
+  .delbtn:hover{border-color:#555;color:#888;}
+  .empty{text-align:center;padding:2rem;color:#333;font-size:13px;letter-spacing:1px;}
+ 
+  /* ===== MOBILE ===== */
+  @media (max-width:768px){
+    .hdr{padding:0 1rem;height:auto;flex-wrap:wrap;gap:8px;padding-top:10px;padding-bottom:10px;}
+    .nav-links{width:100%;justify-content:space-between;}
+    .nav-links button{font-size:12px;padding:6px 0;}
+    .hdr-right{width:100%;justify-content:space-between;}
+    .hero{padding:1.2rem 1rem;}
+    .hero-img-slot{width:140px;height:140px;}
+    .fbar{padding:0.8rem 1rem;overflow-x:auto;}
+    .fbtn{font-size:12px;padding:6px 12px;white-space:nowrap;}
+    .pgrid{grid-template-columns:repeat(3,1fr);gap:6px;padding:6px;}
+    .cname{font-size:12px;}
+    .cdesc{display:none;}
+    .cprice{font-size:18px;}
+    .cinfo{padding:.6rem .6rem .9rem;}
+    .csizes{display:none;}
+    .dmod{width:100%;height:100%;max-height:100%;border-radius:0;}
+    .dmod-body{flex-direction:column;}
+    .dmod-gallery{width:100%;}
+    .dmod-info{padding:1.4rem;gap:12px;}
+    .dmod-name{font-size:26px;}
+    .dmod-price{font-size:30px;}
+    .amod{width:100%;height:100%;max-height:100%;border-radius:0;padding:1.2rem;}
+    .fgrid{grid-template-columns:1fr;}
+    .sfooter{flex-direction:column;gap:12px;text-align:center;padding:2rem 1rem;}
+  }
+</style>
+</head>
+<body>
+ 
+<div class="sr">
+  <header class="hdr">
+    <div class="logo">Too Blessed<span>Imports</span></div>
+    <nav><ul class="nav-links">
+      <li><button class="active" onclick="setCat('todos',this)">Todos</button></li>
+      <li><button onclick="setCat('tenis',this)">Tênis</button></li>
+      <li><button onclick="setCat('roupas',this)">Roupas</button></li>
+      <li><button onclick="setCat('acessorios',this)">Acessórios</button></li>
+    </ul></nav>
+    <div class="hdr-right">
+      <span class="icount" id="cnt">0 peças</span>
+      <button class="licon" id="licon" onclick="openLogin()" title="Admin">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- HERO: imagem com logo SVG centralizada sobreposta -->
+  <section class="hero">
+    <div class="hero-img-slot">
+      <!-- Imagens de fundo por categoria -->
+      <img id="bg-todos" class="hero-bg active"
+           src="https://res.cloudinary.com/daqguurar/image/upload/v1776990459/gncdezqqpmwppz2dvpao.png"
+           alt="Coleção"/>
+      <img id="bg-tenis" class="hero-bg"
+           src="https://res.cloudinary.com/daqguurar/image/upload/v1776990459/gncdezqqpmwppz2dvpao.png"
+           alt="Tênis"/>
+      <img id="bg-roupas" class="hero-bg"
+           src="https://res.cloudinary.com/daqguurar/image/upload/v1776990459/gncdezqqpmwppz2dvpao.png"
+           alt="Roupas"/>
+      <img id="bg-acessorios" class="hero-bg"
+           src="https://res.cloudinary.com/daqguurar/image/upload/v1776990459/gncdezqqpmwppz2dvpao.png"
+           alt="Acessórios"/>
+
+      <!-- Logo SVG transparente centralizada -->
+      
+    </div>
+
+    <div class="hero-right"><p>Temporada</p><strong>Outono — Inverno 2026</strong></div>
+  </section>
+ 
+  <div class="fbar">
+    <span class="flabel">Ordenar</span>
+    <button class="fbtn active" onclick="setSort('destaque',this)">Destaque</button>
+    <button class="fbtn" onclick="setSort('menor',this)">Menor preço</button>
+    <button class="fbtn" onclick="setSort('maior',this)">Maior preço</button>
+    <button class="fbtn" onclick="setSort('novo',this)">Novidades</button>
+  </div>
+ 
+  <div><div class="pgrid" id="grid"></div></div>
+ 
+  <footer class="sfooter">
+    <div><div class="fbn">Too Blessed</div><div class="fbs">Imports</div></div>
+    
+  </footer>
+</div>
+ 
+<!-- LOGIN -->
+<div class="mbg" id="lbg">
+  <div class="lmod">
+    <h2>Acesso</h2>
+    <input type="password" id="pw" placeholder="••••" maxlength="20" onkeydown="if(event.key==='Enter')doLogin()"/>
+    <div class="lerr" id="lerr">senha incorreta</div>
+    <div class="lact">
+      <button class="btn-p" onclick="doLogin()">Entrar</button>
+      <button class="btn-g" onclick="closeMod('lbg')">Cancelar</button>
+    </div>
+  </div>
+</div>
+ 
+<!-- PRODUCT DETAIL -->
+<div class="mbg" id="dbg" onclick="if(event.target===this)closeMod('dbg')">
+  <div class="dmod" id="dmod">
+    <div class="dmod-body">
+      <div class="dmod-gallery" style="position:relative;">
+        <button class="dmod-close" onclick="closeMod('dbg')">✕</button>
+        <div class="dmod-main-img" id="dmain"></div>
+        <div class="dmod-thumbs" id="dthumbs"></div>
+      </div>
+      <div class="dmod-info" id="dinfo"></div>
+    </div>
+  </div>
+</div>
+ 
+<!-- ADMIN -->
+<div class="mbg" id="abg" onclick="if(event.target===this)closeAdmin()">
+  <div class="amod">
+    <div class="ahdr">
+      <div class="atitle">Painel Admin<span>Too Blessed Imports</span></div>
+      <button class="cbtn" onclick="closeAdmin()">✕</button>
+    </div>
+ 
+    <div class="aform">
+      <div class="ftitle" id="ftitle">Adicionar produto</div>
+      <div class="fgrid">
+ 
+        <div class="fg full">
+          <label>Fotos do produto (pode adicionar várias)</label>
+          <div class="photos-area" id="photosArea">
+            <input type="file" accept="image/*" multiple id="imgFiles" onchange="addPhotos(event)"/>
+            <div class="photos-hint" id="photosHint">Clique para selecionar fotos — primeira foto será a capa</div>
+          </div>
+          <div class="photo-previews" id="photoPreviews"></div>
+        </div>
+ 
+        <div class="fg"><label>Nome do produto</label><input type="text" id="fName" placeholder="Ex: Air Max 2026"/></div>
+        <div class="fg"><label>Preço (R$)</label><input type="number" id="fPrice" placeholder="0"/></div>
+ 
+        <div class="fg"><label>Categoria</label>
+          <select id="fCat">
+            <option value="tenis">Tênis</option>
+            <option value="roupas">Roupas</option>
+            <option value="acessorios">Acessórios</option>
+          </select>
+        </div>
+ 
+        <div class="fg"><label>Badge</label>
+          <select id="fBadge" onchange="toggleSale()">
+            <option value="">Nenhum</option>
+            <option value="novo">Novo</option>
+            <option value="destaque">Destaque</option>
+            <option value="sale">Sale</option>
+          </select>
+        </div>
+ 
+        <div class="fg" id="opGroup" style="display:none;"><label>Preço original (riscado)</label><input type="number" id="fOld" placeholder="0"/></div>
+ 
+        <div class="fg full"><label>Descrição</label><textarea id="fDesc" placeholder="Detalhes do produto..."></textarea></div>
+ 
+        <div class="fg full">
+          <label>Tamanhos disponíveis</label>
+          <div class="size-input-row">
+            <input type="text" id="sizeInput" placeholder="Ex: 38, P, M, G, 42..." onkeydown="if(event.key==='Enter'){event.preventDefault();addSize()}"/>
+            <button class="size-add-btn" onclick="addSize()">+ Adicionar</button>
+          </div>
+          <div class="size-tags" id="sizeTags"></div>
+        </div>
+ 
+        <div class="fg full">
+          <label>Cores disponíveis</label>
+          <div class="color-input-row">
+            <input type="text" id="colorName" placeholder="Nome da cor (ex: Preto, Branco, Azul Royal...)"/>
+            <div class="color-swatch-preview" id="colorSwatch" style="background:#888;"></div>
+            <input type="color" id="colorPicker" value="#888888" oninput="updateSwatch()" style="width:36px;height:36px;padding:2px;background:#111;border:1px solid #333;border-radius:2px;cursor:pointer;flex-shrink:0;"/>
+            <button class="color-add-btn" onclick="addColor()">+ Adicionar</button>
+          </div>
+          <div class="color-tags" id="colorTags"></div>
+        </div>
+ 
+      </div>
+      <div class="fact">
+        <button class="btn-p" id="saveBtn" onclick="saveProduct()">Salvar produto</button>
+        <button class="btn-g" id="cancelEditBtn" onclick="cancelEdit()" style="display:none;">Cancelar edição</button>
+      </div>
+    </div>
+ 
+    <div class="alist-title">Produtos cadastrados</div>
+    <div class="alist" id="alist"></div>
+  </div>
+</div>
+ 
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+ 
+<script>
+const WHATS_NUMBER = "5511911286666";
+const PASS = "99";
+const TEN = 10 * 24 * 60 * 60 * 1000;
+ 
+const firebaseConfig = {
+  apiKey: "AIzaSyD9fPLS2maJ6YtDqREx0ZL5VIBS7jMQVHc",
+  authDomain: "mostruario-9d9b3.firebaseapp.com",
+  projectId: "mostruario-9d9b3",
+  storageBucket: "mostruario-9d9b3.firebasestorage.app",
+  messagingSenderId: "137348904028",
+  appId: "1:137348904028:web:d58cf29a4ee4e493b02299"
+};
+ 
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+ 
+const svgFb = {
+  tenis: `<svg width="56" height="56" viewBox="0 0 90 90" fill="none"><path d="M12 58c0 0 8-10 18-12l10-2 12-16 12-5 8 3 2 10-5 5-20 5-7 10-30 2z" stroke="#fff" stroke-width="1.5" fill="none"/><path d="M12 58l2 8h62l2-8" stroke="#fff" stroke-width="1.5" fill="none"/></svg>`,
+  roupas: `<svg width="56" height="56" viewBox="0 0 90 90" fill="none"><path d="M30 18l-18 12 8 6 3-3v36h44V33l3 3 8-6-18-12c0 0-5 10-15 10s-15-10-15-10z" stroke="#fff" stroke-width="1.5" fill="none"/></svg>`,
+  acessorios: `<svg width="56" height="56" viewBox="0 0 90 90" fill="none"><rect x="22" y="34" width="46" height="40" rx="3" stroke="#fff" stroke-width="1.5" fill="none"/><path d="M32 34v-8a13 13 0 0126 0v8" stroke="#fff" stroke-width="1.5" fill="none"/></svg>`
+};
+ 
+const heroL = {
+  todos:      'Nova<br><em>Coleção</em><br>2026',
+  tenis:      '<em>Drop</em><br>Tênis<br>26.04',
+  roupas:     '<em>Look</em><br>Book<br>2026',
+  acessorios: '<em>Small</em><br>Things<br>Matter'
+};
+ 
+const namedColors = {
+  'preto':'#111111','branco':'#f5f5f5','cinza':'#888888','cinza claro':'#cccccc','cinza escuro':'#444444',
+  'vermelho':'#c0392b','azul':'#2980b9','azul royal':'#1a3a8f','azul claro':'#5dade2','verde':'#27ae60',
+  'amarelo':'#f1c40f','laranja':'#e67e22','rosa':'#e91e8c','roxo':'#8e44ad','marrom':'#7b4a2d',
+  'bege':'#d4b896','dourado':'#c9a227','prata':'#b0bec5','off white':'#f0ede6','vinho':'#7b1c3e'
+};
+ 
+let products = [], curCat = 'todos', curSort = 'destaque';
+let editId = null, pendingPhotos = [], pendingSizes = [], pendingColors = [];
+let selectedSize = null, currentProduct = null;
+ 
+async function load() {
+  try {
+    const snap = await db.collection("produtos").get();
+    products = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  } catch(e) {
+    console.error("Erro ao carregar:", e);
+    products = [];
+  }
+}
+ 
+function checkIcon() {
+  document.getElementById('licon').style.display = 'flex';
+}
+ 
+function openLogin() {
+  document.getElementById('lbg').classList.add('open');
+  document.getElementById('pw').value = '';
+  document.getElementById('lerr').style.display = 'none';
+  setTimeout(() => document.getElementById('pw').focus(), 100);
+}
+function closeMod(id) { document.getElementById(id).classList.remove('open'); }
+function doLogin() {
+  if (document.getElementById('pw').value === PASS) {
+    closeMod('lbg'); openAdmin();
+  } else {
+    document.getElementById('lerr').style.display = 'block';
+    document.getElementById('pw').value = '';
+    document.getElementById('pw').focus();
+  }
+}
+function openAdmin() { document.getElementById('abg').classList.add('open'); renderAList(); }
+function closeAdmin() { document.getElementById('abg').classList.remove('open'); cancelEdit(); }
+ 
+function toggleSale() {
+  document.getElementById('opGroup').style.display =
+    document.getElementById('fBadge').value === 'sale' ? 'block' : 'none';
+}
+function updateSwatch() {
+  document.getElementById('colorSwatch').style.background = document.getElementById('colorPicker').value;
+}
+function addSize() {
+  const inp = document.getElementById('sizeInput');
+  const val = inp.value.trim();
+  if (!val) return;
+  val.split(',').map(v => v.trim()).filter(Boolean).forEach(v => {
+    if (!pendingSizes.includes(v)) pendingSizes.push(v);
+  });
+  inp.value = ''; renderSizeTags();
+}
+function removeSize(s) { pendingSizes = pendingSizes.filter(x => x !== s); renderSizeTags(); }
+function renderSizeTags() {
+  document.getElementById('sizeTags').innerHTML = pendingSizes.map(s =>
+    `<div class="stag">${s}<button onclick="removeSize('${s}')">×</button></div>`).join('');
+}
+function addColor() {
+  const name = document.getElementById('colorName').value.trim();
+  const hex = document.getElementById('colorPicker').value;
+  if (!name) return;
+  const resolvedHex = namedColors[name.toLowerCase()] || hex;
+  if (!pendingColors.find(c => c.name.toLowerCase() === name.toLowerCase()))
+    pendingColors.push({ name, hex: resolvedHex });
+  document.getElementById('colorName').value = ''; renderColorTags();
+}
+function removeColor(name) { pendingColors = pendingColors.filter(c => c.name !== name); renderColorTags(); }
+function renderColorTags() {
+  document.getElementById('colorTags').innerHTML = pendingColors.map(c =>
+    `<div class="ctag"><div class="csw" style="background:${c.hex}"></div>${c.name}<button onclick="removeColor('${c.name}')">×</button></div>`).join('');
+}
+function addPhotos(e) {
+  Array.from(e.target.files).forEach(f => {
+    const reader = new FileReader();
+    reader.onload = ev => { pendingPhotos.push(ev.target.result); renderPhotoPreviews(); };
+    reader.readAsDataURL(f);
+  });
+  document.getElementById('imgFiles').value = '';
+}
+function removePhoto(i) { pendingPhotos.splice(i, 1); renderPhotoPreviews(); }
+function renderPhotoPreviews() {
+  document.getElementById('photosHint').style.display = pendingPhotos.length ? 'none' : 'block';
+  document.getElementById('photoPreviews').innerHTML = pendingPhotos.map((img, i) =>
+    `<div class="pprev"><img src="${img}"/><button class="pprev-rm" onclick="removePhoto(${i})">×</button></div>`).join('');
+}
+ 
+async function saveProduct() {
+  const name = document.getElementById('fName').value.trim();
+  const price = parseFloat(document.getElementById('fPrice').value);
+  const cat = document.getElementById('fCat').value;
+  const badge = document.getElementById('fBadge').value;
+  const desc = document.getElementById('fDesc').value.trim();
+  const oldPrice = badge === 'sale' ? parseFloat(document.getElementById('fOld').value) || null : null;
+  if (!name || !price || !desc) { alert("Preencha nome, preço e descrição."); return; }
+  const discount = oldPrice && price ? Math.round((1 - price / oldPrice) * 100) : null;
+  const data = { name, price, cat, badge: badge || null, desc, oldPrice, discount,
+    sizes: [...pendingSizes], colors: [...pendingColors],
+    photos: pendingPhotos.length ? [...pendingPhotos] : [] };
+  try {
+    if (editId) {
+      await db.collection("produtos").doc(String(editId)).update(data);
+      const idx = products.findIndex(p => p.id == editId);
+      if (idx !== -1) products[idx] = { id: editId, ...data };
+    } else {
+      const docRef = await db.collection("produtos").add(data);
+      products.push({ id: docRef.id, ...data });
+    }
+    resetForm(); renderAList(); render();
+  } catch(e) { console.error("Erro ao salvar:", e); alert("Erro ao salvar."); }
+}
+ 
+function editProduct(id) {
+  const p = products.find(x => x.id === id); if (!p) return;
+  editId = id;
+  document.getElementById('fName').value = p.name;
+  document.getElementById('fPrice').value = p.price;
+  document.getElementById('fCat').value = p.cat;
+  document.getElementById('fBadge').value = p.badge || '';
+  document.getElementById('fDesc').value = p.desc;
+  document.getElementById('fOld').value = p.oldPrice || '';
+  document.getElementById('opGroup').style.display = p.badge === 'sale' ? 'block' : 'none';
+  pendingSizes = [...(p.sizes || [])]; pendingColors = [...(p.colors || [])]; pendingPhotos = [...(p.photos || [])];
+  renderSizeTags(); renderColorTags(); renderPhotoPreviews();
+  document.getElementById('ftitle').textContent = 'Editar produto';
+  document.getElementById('saveBtn').textContent = 'Salvar alterações';
+  document.getElementById('cancelEditBtn').style.display = 'block';
+  document.querySelector('.aform').scrollIntoView({ behavior: 'smooth' });
+}
+async function deleteProduct(id) {
+  if (!confirm("Remover este produto?")) return;
+  try {
+    await db.collection("produtos").doc(String(id)).delete();
+    products = products.filter(p => p.id !== id);
+    if (editId === id) cancelEdit();
+    renderAList(); render();
+  } catch(e) { console.error(e); }
+}
+function cancelEdit() { editId = null; resetForm(); }
+function resetForm() {
+  ['fName','fPrice','fDesc','fOld'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('fCat').value = 'tenis';
+  document.getElementById('fBadge').value = '';
+  document.getElementById('opGroup').style.display = 'none';
+  pendingPhotos = []; pendingSizes = []; pendingColors = [];
+  renderPhotoPreviews(); renderSizeTags(); renderColorTags();
+  document.getElementById('photosHint').style.display = 'block';
+  document.getElementById('ftitle').textContent = 'Adicionar produto';
+  document.getElementById('saveBtn').textContent = 'Salvar produto';
+  document.getElementById('cancelEditBtn').style.display = 'none';
+}
+function renderAList() {
+  const el = document.getElementById('alist');
+  if (!products.length) { el.innerHTML = '<div class="empty">Nenhum produto cadastrado.</div>'; return; }
+  el.innerHTML = products.map(p => `
+    <div class="aitem">
+      <div class="athumb">${p.photos && p.photos[0] ? `<img src="${p.photos[0]}"/>` : (svgFb[p.cat] || svgFb.roupas)}</div>
+      <div class="ainfo"><div class="ainame">${p.name}</div><div class="aimeta">${p.cat}${p.badge ? ' · '+p.badge : ''}</div></div>
+      <div class="aiprice">R$${p.price}</div>
+      <button class="delbtn" onclick="editProduct('${p.id}')">Editar</button>
+      <button class="delbtn" onclick="deleteProduct('${p.id}')">Remover</button>
+    </div>`).join('');
+}
+ 
+function selectSize(size, el) {
+  selectedSize = size;
+  document.querySelectorAll('.dsz').forEach(d => d.classList.remove('active'));
+  el.classList.add('active');
+}
+ 
+function openDetail(id) {
+  const p = products.find(x => x.id === id); if (!p) return;
+  currentProduct = p; selectedSize = null;
+  const photos = p.photos && p.photos.length ? p.photos : [];
+  let activeIdx = 0;
+  function renderGallery() {
+    document.getElementById('dmain').innerHTML = photos.length
+      ? `<img src="${photos[activeIdx]}" alt="${p.name}"/>` : (svgFb[p.cat] || svgFb.roupas);
+    document.getElementById('dthumbs').innerHTML = photos.length > 1
+      ? photos.map((img, i) =>
+          `<div class="dthumb${i===activeIdx?' active':''}" onclick="setActive(${i})"><img src="${img}"/></div>`).join('') : '';
+  }
+  window.setActive = function(i) { activeIdx = i; renderGallery(); };
+  const hasSale = p.badge === 'sale' && p.oldPrice && p.discount;
+  const badgeHtml = p.badge
+    ? `<span class="dmod-badge badge-${p.badge}">${p.badge==='novo'?'Novo':p.badge==='destaque'?'Destaque':'Sale'}</span>` : '';
+  const sizesHtml = p.sizes && p.sizes.length
+    ? `<div><div class="dmod-section-label">Tamanhos</div><div class="dmod-sizes">
+        ${p.sizes.map(s=>`<div class="dsz" onclick="selectSize('${s}',this)">${s}</div>`).join('')}</div></div>` : '';
+  const colorsHtml = p.colors && p.colors.length
+    ? `<div><div class="dmod-section-label">Cores</div><div class="dmod-colors">
+        ${p.colors.map(c=>`<div class="dmod-color"><div class="dc" style="background:${c.hex}"></div>${c.name}</div>`).join('')}</div></div>` : '';
+  document.getElementById('dinfo').innerHTML = `
+    <div class="dmod-cat">${p.cat}</div>
+    <div class="dmod-name">${p.name}</div>
+    ${badgeHtml}
+    <div class="dmod-price-block">
+      ${p.oldPrice ? `<div class="dmod-old">R$${p.oldPrice}</div>` : ''}
+      <div class="dmod-price${hasSale?' sp':''}">R$${p.price}</div>
+      ${hasSale ? `<div class="dmod-seal">-${p.discount}%</div>` : ''}
+    </div>
+    ${sizesHtml}${colorsHtml}
+    <div><div class="dmod-section-label">Descrição</div><div class="dmod-desc">${p.desc}</div></div>
+    <button class="btn-whats" onclick="comprarWhats()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      Tenho Interesse
+    </button>`;
+  renderGallery();
+  document.getElementById('dbg').classList.add('open');
+}
+ 
+function comprarWhats() {
+  if (!currentProduct) return;
+  const p = currentProduct;
+  if (p.sizes && p.sizes.length > 0 && !selectedSize) { alert("Selecione um tamanho antes de continuar."); return; }
+  const nome = prompt("Digite seu nome para continuar:");
+  if (!nome || !nome.trim()) return;
+  const sizeInfo = selectedSize ? `%0A📏 Tamanho: ${selectedSize}` : '';
+  const texto = `Olá, me chamo ${encodeURIComponent(nome.trim())}%0ATenho interesse no produto:%0A%0A🛍️ *${encodeURIComponent(p.name)}*${sizeInfo}%0A💰 Preço: R$${p.price}%0A%0A${encodeURIComponent(p.desc)}`;
+  window.open(`https://wa.me/${WHATS_NUMBER}?text=${texto}`, "_blank");
+}
+ 
+function setCat(c, el) {
+  curCat = c;
+  document.querySelectorAll('.nav-links button').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.hero-img-slot .hero-bg').forEach(img => img.classList.remove('active'));
+  const target = document.getElementById('bg-' + c);
+  if (target) target.classList.add('active');
+  render();
+}
+ 
+function setSort(s, el) {
+  curSort = s;
+  document.querySelectorAll('.fbtn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active'); render();
+}
+ 
+function render() {
+  let list = curCat === 'todos' ? [...products] : products.filter(p => p.cat === curCat);
+  if (curSort === 'menor') list.sort((a, b) => a.price - b.price);
+  else if (curSort === 'maior') list.sort((a, b) => b.price - a.price);
+  else if (curSort === 'novo') list = [...list.filter(p => p.badge === 'novo'), ...list.filter(p => p.badge !== 'novo')];
+  else list = [...list.filter(p => p.badge === 'destaque'), ...list.filter(p => p.badge !== 'destaque')];
+  document.getElementById('cnt').textContent = list.length + ' peças';
+  if (!list.length) {
+    document.getElementById('grid').innerHTML = `<div style="grid-column:1/-1;padding:4rem 2rem;text-align:center;color:#2a2a2a;font-size:13px;letter-spacing:2px;text-transform:uppercase;">Nenhum produto cadastrado</div>`;
+    return;
+  }
+  document.getElementById('grid').innerHTML = list.map(p => {
+    const cover = p.photos && p.photos[0];
+    const hasSale = p.badge === 'sale' && p.oldPrice && p.discount;
+    return `
+      <div class="pcard" onclick="openDetail('${p.id}')">
+        <div class="img-wrap">
+          <div class="pimg-inner">${cover ? `<img src="${cover}" alt="${p.name}"/>` : (svgFb[p.cat] || svgFb.roupas)}</div>
+          ${p.badge ? `<div class="badge badge-${p.badge}">${p.badge==='novo'?'Novo':p.badge==='destaque'?'Destaque':'Sale'}</div>` : ''}
+          ${hasSale ? `<div class="disc-seal">-${p.discount}%</div>` : ''}
+        </div>
+        <div class="cinfo">
+          <div class="ccat">${p.cat}</div>
+          <div class="cname">${p.name}</div>
+          <div class="cdesc">${p.desc}</div>
+          ${p.sizes && p.sizes.length ? `<div class="csizes">${p.sizes.map(s=>`<div class="szpill">${s}</div>`).join('')}</div>` : ''}
+          <div class="cfoot">
+            <div>
+              ${p.oldPrice ? `<span class="old-price">R$${p.oldPrice}</span>` : ''}
+              <div class="cprice${hasSale?' sale-price':''}">R$${p.price}</div>
+            </div>
+            <div class="colors-row">${(p.colors||[]).map(c=>`<div class="cdot" style="background:${c.hex}" title="${c.name}"></div>`).join('')}</div>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+ 
+(async () => { await load(); checkIcon(); render(); })();
+</script>
+</body>
+</html>
