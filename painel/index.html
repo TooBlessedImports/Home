@@ -1,1 +1,178 @@
+<!-- ADMIN -->
+<div class="mbg" id="abg" onclick="if(event.target===this)closeAdmin()">
+  <div class="amod">
+    <div class="ahdr">
+      <div class="atitle">Painel Admin<span>Too Blessed Imports</span></div>
+      <button class="cbtn" onclick="closeAdmin()">✕</button>
+    </div>
 
+    <div class="aform">
+      <div class="ftitle" id="ftitle">Adicionar produto</div>
+
+      <div class="fgrid">
+
+        <div class="fg full">
+          <label>Fotos do produto</label>
+          <input type="file" multiple onchange="addPhotos(event)">
+          <div id="photoPreviews"></div>
+        </div>
+
+        <div class="fg">
+          <input type="text" id="fName" placeholder="Nome">
+        </div>
+
+        <div class="fg">
+          <input type="number" id="fPrice" placeholder="Preço">
+        </div>
+
+        <div class="fg">
+          <select id="fCat">
+            <option value="tenis">Tênis</option>
+            <option value="roupas">Roupas</option>
+            <option value="acessorios">Acessórios</option>
+          </select>
+        </div>
+
+        <div class="fg full">
+          <textarea id="fDesc" placeholder="Descrição"></textarea>
+        </div>
+
+      </div>
+
+      <button onclick="saveProduct()">Salvar</button>
+    </div>
+
+    <div id="alist"></div>
+  </div>
+</div>
+
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+/* CONFIG FIREBASE */
+const firebaseConfig = {
+  apiKey: "AIzaSyD9fPLS2maJ6YtDqREx0ZL5VIBS7jMQVHc",
+  authDomain: "mostruario-9d9b3.firebaseapp.com",
+  projectId: "mostruario-9d9b3",
+  storageBucket: "mostruario-9d9b3.firebasestorage.app",
+  messagingSenderId: "137348904028",
+  appId: "1:137348904028:web:d58cf29a4ee4e493b02299"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+/* VARIÁVEIS */
+let products = [];
+let pendingPhotos = [];
+let editId = null;
+
+/* CARREGAR PRODUTOS */
+async function loadProducts() {
+  const snap = await db.collection("produtos").get();
+  products = snap.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data()
+  }));
+  renderAList();
+}
+loadProducts();
+
+/* LISTA */
+function renderAList() {
+  const el = document.getElementById('alist');
+  el.innerHTML = products.map(p => `
+    <div style="padding:10px;border-bottom:1px solid #333">
+      <b>${p.name}</b> - R$ ${p.price}
+      <br>
+      <button onclick="editProduct('${p.id}')">Editar</button>
+      <button onclick="deleteProduct('${p.id}')">Excluir</button>
+    </div>
+  `).join('');
+}
+
+/* FOTO */
+function addPhotos(e) {
+  Array.from(e.target.files).forEach(f => {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      pendingPhotos.push(ev.target.result);
+      renderPhotos();
+    };
+    reader.readAsDataURL(f);
+  });
+}
+
+function renderPhotos() {
+  document.getElementById('photoPreviews').innerHTML =
+    pendingPhotos.map(img => `<img src="${img}" width="50">`).join('');
+}
+
+/* SALVAR */
+async function saveProduct() {
+  const data = {
+    name: fName.value,
+    price: Number(fPrice.value),
+    cat: fCat.value,
+    desc: fDesc.value,
+    photos: pendingPhotos
+  };
+
+  if (!data.name || !data.price) {
+    alert("Preencha os campos");
+    return;
+  }
+
+  if (editId) {
+    await db.collection("produtos").doc(editId).update(data);
+  } else {
+    await db.collection("produtos").add(data);
+  }
+
+  pendingPhotos = [];
+  editId = null;
+
+  loadProducts();
+  resetForm();
+}
+
+/* EDITAR */
+function editProduct(id) {
+  const p = products.find(x => x.id === id);
+  if (!p) return;
+
+  editId = id;
+  fName.value = p.name;
+  fPrice.value = p.price;
+  fDesc.value = p.desc;
+  pendingPhotos = p.photos || [];
+
+  renderPhotos();
+}
+
+/* EXCLUIR */
+async function deleteProduct(id) {
+  await db.collection("produtos").doc(id).delete();
+  loadProducts();
+}
+
+/* RESET */
+function resetForm() {
+  fName.value = "";
+  fPrice.value = "";
+  fDesc.value = "";
+  pendingPhotos = [];
+  renderPhotos();
+}
+
+/* ABRIR/FECHAR */
+function openAdmin() {
+  document.getElementById('abg').classList.add('open');
+}
+
+function closeAdmin() {
+  document.getElementById('abg').classList.remove('open');
+}
+</script>
