@@ -246,6 +246,263 @@
 }
     .cart-btn-label{display:none;}
   }
+
+/* NAME MODAL */
+.name-modal-bg{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.82);
+  backdrop-filter:blur(6px);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:2000;
+
+  opacity:0;
+  pointer-events:none;
+  transition:.25s;
+}
+
+.name-modal-bg.open{
+  opacity:1;
+  pointer-events:auto;
+}
+
+.name-modal{
+  width:92%;
+  max-width:380px;
+
+  background:linear-gradient(
+    180deg,
+    #141414 0%,
+    #0c0c0c 100%
+  );
+
+  border:1px solid #232323;
+  border-radius:24px;
+
+  padding:28px;
+
+  position:relative;
+
+  transform:translateY(20px) scale(.96);
+  transition:.28s cubic-bezier(.22,1,.36,1);
+
+  box-shadow:
+    0 25px 80px rgba(0,0,0,.6),
+    inset 0 1px 0 rgba(255,255,255,.03);
+}
+
+.name-modal-bg.open .name-modal{
+  transform:translateY(0) scale(1);
+}
+
+.name-close{
+  position:absolute;
+  top:14px;
+  right:14px;
+
+  width:34px;
+  height:34px;
+
+  border:none;
+  border-radius:50%;
+
+  background:#1a1a1a;
+  color:#777;
+
+  cursor:pointer;
+
+  transition:.2s;
+}
+
+.name-close:hover{
+  background:#222;
+  color:#fff;
+}
+
+.name-top{
+  text-align:center;
+  margin-bottom:22px;
+}
+
+.name-icon{
+  width:62px;
+  height:62px;
+
+  margin:auto auto 14px;
+
+  border-radius:50%;
+
+  background:linear-gradient(135deg,#fff,#888);
+
+  color:#000;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  font-size:24px;
+  font-weight:bold;
+}
+
+.name-top h2{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:34px;
+  letter-spacing:2px;
+  color:#fff;
+  margin-bottom:6px;
+}
+
+.name-top p{
+  font-size:13px;
+  color:#666;
+  line-height:1.5;
+}
+
+#clientName{
+  width:100%;
+
+  height:52px;
+
+  border-radius:14px;
+  border:1px solid #262626;
+
+  background:#101010;
+  color:#fff;
+
+  padding:0 16px;
+
+  outline:none;
+
+  font-size:14px;
+
+  transition:.2s;
+}
+
+#clientName:focus{
+  border-color:#555;
+  background:#151515;
+}
+
+#clientName::placeholder{
+  color:#444;
+}
+
+.name-confirm{
+  width:100%;
+  margin-top:16px;
+
+  height:52px;
+
+  border:none;
+  border-radius:14px;
+
+  background:#fff;
+  color:#000;
+
+  font-family:'DM Sans',sans-serif;
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:2px;
+  text-transform:uppercase;
+
+  cursor:pointer;
+
+  transition:.2s;
+}
+
+.name-confirm:hover{
+  transform:translateY(-1px);
+  background:#e8e8e8;
+}
+
+/* ALERTA BONITO */
+.select-warning{
+  position:fixed;
+
+  top:50%;
+  left:50%;
+
+  transform:translate(-50%, -50%) scale(.92);
+
+  background:rgba(18,18,18,.97);
+  border:1px solid #2b2b2b;
+
+  color:#fff;
+
+  padding:18px 22px;
+  border-radius:22px;
+
+  display:flex;
+  align-items:center;
+  gap:14px;
+
+  z-index:5000;
+
+  backdrop-filter:blur(16px);
+
+  opacity:0;
+  pointer-events:none;
+
+  transition:
+    opacity .25s ease,
+    transform .28s cubic-bezier(.22,1,.36,1);
+
+  box-shadow:
+    0 30px 80px rgba(0,0,0,.55),
+    inset 0 1px 0 rgba(255,255,255,.03);
+
+  min-width:280px;
+  max-width:90%;
+}
+
+.select-warning.show{
+  opacity:1;
+  transform:translate(-50%, -50%) scale(1);
+}
+
+.sw-icon{
+  width:42px;
+  height:42px;
+
+  border-radius:14px;
+
+  background:linear-gradient(
+    135deg,
+    #ffffff,
+    #8a8a8a
+  );
+
+  color:#000;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  font-size:18px;
+  font-weight:bold;
+
+  flex-shrink:0;
+}
+
+.sw-text{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+
+.sw-title{
+  font-size:12px;
+  letter-spacing:1px;
+  color:#fff;
+}
+
+.sw-sub{
+  font-size:11px;
+  color:#666;
+}
+
 </style>
 </head>
 <body>
@@ -556,32 +813,50 @@ function closeCart(){
 // ===== FINALIZAR PEDIDO =====
 function finalizarPedido(){
   if(!cart.length) return;
-  const nome = prompt("Digite seu nome para continuar:");
-  if(!nome||!nome.trim()) return;
 
-  let linhas='';
-  let subtotal=0;
-  cart.forEach((item,idx)=>{
-    const colorLabel = item.color?(item.color.name||item.color.hex):null;
-    const sub = item.price*item.qty;
-    subtotal += sub;
-    linhas += `%0A%0A${idx+1}. *${encodeURIComponent(item.name)}*`;
-    if(item.brand)   linhas += `%0A   🏷️ Marca: ${encodeURIComponent(item.brand)}`;
-    if(item.size)    linhas += `%0A   📏 Tamanho: ${encodeURIComponent(item.size)}`;
-    if(colorLabel)   linhas += `%0A   🎨 Cor: ${encodeURIComponent(colorLabel)}`;
-    linhas += `%0A   🔢 Qtd: ${item.qty}`;
-    linhas += `%0A   💵 Subtotal: ${encodeURIComponent(fmt(sub))}`;
+  openNameModal((nome)=>{
+
+    let linhas='';
+    let subtotal=0;
+
+    cart.forEach((item,idx)=>{
+      const colorLabel = item.color
+        ? (item.color.name || item.color.hex)
+        : null;
+
+      const sub = item.price * item.qty;
+
+      subtotal += sub;
+
+      linhas += `%0A%0A${idx+1}. *${encodeURIComponent(item.name)}*`;
+
+      if(item.brand)
+        linhas += `%0A   🏷️ Marca: ${encodeURIComponent(item.brand)}`;
+
+      if(item.size)
+        linhas += `%0A   📏 Tamanho: ${encodeURIComponent(item.size)}`;
+
+      if(colorLabel)
+        linhas += `%0A   🎨 Cor: ${encodeURIComponent(colorLabel)}`;
+
+      linhas += `%0A   🔢 Qtd: ${item.qty}`;
+      linhas += `%0A   💵 Subtotal: ${encodeURIComponent(fmt(sub))}`;
+    });
+
+    const texto =
+      `Olá, me chamo ${encodeURIComponent(nome)}%0A`+
+      `Gostaria de fazer um pedido:`+
+      linhas+
+      `%0A%0A━━━━━━━━━━━━━━%0A`+
+      `🛒 *${cart.length} ${cart.length===1?'produto':'produtos'}*%0A`+
+      `💰 *Total: ${encodeURIComponent(fmt(subtotal))}*`;
+
+    window.open(
+      `https://wa.me/${WHATS_NUMBER}?text=${texto}`,
+      "_blank"
+    );
+
   });
-
-  const texto =
-    `Olá, me chamo ${encodeURIComponent(nome.trim())}%0A`+
-    `Gostaria de fazer um pedido:`+
-    linhas+
-    `%0A%0A━━━━━━━━━━━━━━%0A`+
-    `🛒 *${cart.length} ${cart.length===1?'produto':'produtos'}*%0A`+
-    `💰 *Total: ${encodeURIComponent(fmt(subtotal))}*`;
-
-  window.open(`https://wa.me/${WHATS_NUMBER}?text=${texto}`,"_blank");
 }
 
 // ===== LOAD =====
@@ -681,9 +956,43 @@ function selectColor(colorObj,el){
   document.querySelectorAll('.dmod-color').forEach(d=>d.classList.remove('selected'));
   el.classList.add('selected');
 }
+function showWarning(title, sub){
+  const box = document.getElementById('selectWarning');
+
+  document.getElementById('swTitle').innerText = title;
+  document.getElementById('swSub').innerText = sub;
+
+  box.classList.add('show');
+
+  clearTimeout(box.hideTimer);
+
+  box.hideTimer = setTimeout(()=>{
+    box.classList.remove('show');
+  },2500);
+}
+
 function validateSelections(p){
-  if(p.sizes&&p.sizes.length>0&&!selectedSize){alert("Selecione um tamanho antes de continuar.");return false;}
-  if(p.colors&&p.colors.length>0&&!selectedColor){alert("Selecione uma cor antes de continuar.");return false;}
+
+  if(p.sizes && p.sizes.length > 0 && !selectedSize){
+
+    showWarning(
+      "Escolha um tamanho",
+      "Selecione antes de continuar"
+    );
+
+    return false;
+  }
+
+  if(p.colors && p.colors.length > 0 && !selectedColor){
+
+    showWarning(
+      "Escolha uma cor",
+      "Selecione antes de continuar"
+    );
+
+    return false;
+  }
+
   return true;
 }
 
@@ -759,8 +1068,7 @@ function handleAddAndKeep(){
 
 function comprarWhats(){
   if(!currentProduct||!validateSelections(currentProduct)) return;
-  const nome=prompt("Digite seu nome para continuar:");
-  if(!nome||!nome.trim()) return;
+  openNameModal((nome)=>{
   const p=currentProduct;
   const sizeInfo=selectedSize?`%0A📏 Tamanho: ${selectedSize}`:'';
   const brandInfo=p.brand?`%0A🏷️ Marca: ${p.brand}`:'';
@@ -768,7 +1076,7 @@ function comprarWhats(){
   const colorInfo=colorLabel?`%0A🎨 Cor: ${encodeURIComponent(colorLabel)}`:'';
   const texto=`Olá, me chamo ${encodeURIComponent(nome.trim())}%0ATenho interesse no produto:%0A%0A🛍️ *${encodeURIComponent(p.name)}*${brandInfo}${sizeInfo}${colorInfo}%0A💰 Preço: R$${p.price}%0A%0A${encodeURIComponent(p.desc)}`;
   window.open(`https://wa.me/${WHATS_NUMBER}?text=${texto}`,"_blank");
-}
+});}
 
 (async()=>{
   loadCart();
@@ -847,6 +1155,102 @@ getBrazilSeason();
 
 setInterval(getBrazilSeason, 1000);
 
+let callbackNome = null;
+
+function openNameModal(callback){
+  callbackNome = callback;
+
+  document
+    .getElementById('nameModal')
+    .classList.add('open');
+
+  document.body.style.overflow='hidden';
+
+  setTimeout(()=>{
+    document.getElementById('clientName').focus();
+  },150);
+}
+
+function closeNameModal(){
+  document
+    .getElementById('nameModal')
+    .classList.remove('open');
+
+  document.body.style.overflow='';
+
+  document.getElementById('clientName').value='';
+}
+
+function confirmarNome(){
+  const nome = document
+    .getElementById('clientName')
+    .value
+    .trim();
+
+  if(!nome) return;
+
+  closeNameModal();
+
+  if(callbackNome){
+    callbackNome(nome);
+  }
+}
+
+document.addEventListener('keydown',(e)=>{
+  if(e.key === 'Enter'){
+    const modal = document.getElementById('nameModal');
+
+    if(modal.classList.contains('open')){
+      confirmarNome();
+    }
+  }
+});
+
 </script>
+
+<!-- NAME MODAL -->
+<div class="name-modal-bg" id="nameModal">
+  <div class="name-modal">
+
+    <button class="name-close" onclick="closeNameModal()">✕</button>
+
+    <div class="name-top">
+      <div class="name-icon">✦</div>
+
+      <h2>Finalizar Pedido</h2>
+
+      <p>
+        Digite seu nome para continuar no WhatsApp
+      </p>
+    </div>
+
+    <input
+      type="text"
+      id="clientName"
+      placeholder="Seu nome"
+      maxlength="40"
+    />
+
+    <button class="name-confirm" onclick="confirmarNome()">
+      Continuar
+    </button>
+
+  </div>
+</div>
+
+<div class="select-warning" id="selectWarning">
+  <div class="sw-icon">✦</div>
+
+  <div class="sw-text">
+    <div class="sw-title" id="swTitle">
+      Selecione uma opção
+    </div>
+
+    <div class="sw-sub" id="swSub">
+      Continue para finalizar
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
